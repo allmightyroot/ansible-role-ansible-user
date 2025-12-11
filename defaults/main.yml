@@ -1,0 +1,16 @@
+---
+# defaults file for ansible-user
+
+# Ansible user configuration
+ansible_user_name: ansible
+ansible_user_shell: /bin/bash
+ansible_user_create_home: true
+ansible_user_system: false
+
+# SSH key (should be provided via environment variable or extra vars)
+# Example: ansible_ssh_public_key: "{{ lookup('env', 'ANSIBLE_SSH_PUBLIC_KEY') }}"
+ansible_ssh_public_key: ""
+
+# Sudo configuration
+ansible_user_passwordless_sudo: true
+ansible_user_sudo_commands: "ALL"

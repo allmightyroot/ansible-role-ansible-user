@@ -1,0 +1,46 @@
+---
+# tasks file for ansible-user
+
+- name: Fail if SSH public key is not provided
+  fail:
+    msg: "ansible_ssh_public_key must be provided (set via environment variable or extra vars)"
+  when: ansible_ssh_public_key == ""
+
+- name: Create ansible user
+  user:
+    name: "{{ ansible_user_name }}"
+    shell: "{{ ansible_user_shell }}"
+    create_home: "{{ ansible_user_create_home }}"
+    system: "{{ ansible_user_system }}"
+    state: present
+
+- name: Create .ssh directory for ansible user
+  file:
+    path: "/home/{{ ansible_user_name }}/.ssh"
+    state: directory
+    owner: "{{ ansible_user_name }}"
+    group: "{{ ansible_user_name }}"
+    mode: '0700'
+
+- name: Add SSH public key to ansible user
+  authorized_key:
+    user: "{{ ansible_user_name }}"
+    key: "{{ ansible_ssh_public_key }}"
+    state: present
+    exclusive: yes
+
+- name: Configure passwordless sudo for ansible user
+  lineinfile:
+    path: "/etc/sudoers.d/{{ ansible_user_name }}"
+    line: "{{ ansible_user_name }} ALL=(ALL) NOPASSWD: {{ ansible_user_sudo_commands }}"
+    create: yes
+    mode: '0440'
+    validate: 'visudo -cf %s'
+  when: ansible_user_passwordless_sudo | bool
+
+- name: Ensure sudoers.d is included in sudoers
+  lineinfile:
+    path: /etc/sudoers
+    line: "#includedir /etc/sudoers.d"
+    state: present
+    validate: 'visudo -cf %s'
