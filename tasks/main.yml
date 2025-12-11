@@ -4,7 +4,16 @@
 - name: Fail if SSH public key is not provided
   fail:
     msg: "ansible_ssh_public_key must be provided (set via environment variable or extra vars)"
-  when: ansible_ssh_public_key == ""
+  when: ansible_ssh_public_key == "" or ansible_ssh_public_key is not defined
+
+- name: Validate SSH public key format
+  fail:
+    msg: "Invalid SSH public key format. Must start with 'ssh-rsa', 'ssh-ed25519', 'ecdsa-sha2-', or 'ssh-dss'"
+  when: >
+    not (ansible_ssh_public_key.startswith('ssh-rsa ') or
+         ansible_ssh_public_key.startswith('ssh-ed25519 ') or
+         ansible_ssh_public_key.startswith('ecdsa-sha2-') or
+         ansible_ssh_public_key.startswith('ssh-dss '))
 
 - name: Create ansible user
   user:
