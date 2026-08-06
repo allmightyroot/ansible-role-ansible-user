@@ -3,8 +3,8 @@
 # External dependencies for ansible-roles
 
 collections:
-  - name: community.general
-    version: ">=5.0.0"
+  - name: ansible.posix
+    version: ">=1.4.0"
 
 # roles:
 #   - src: https://github.com/some-org/some-role

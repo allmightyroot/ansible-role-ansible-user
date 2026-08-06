@@ -2,12 +2,12 @@
 # tasks file for ansible-user
 
 - name: Fail if SSH public key is not provided
-  fail:
+  ansible.builtin.fail:
     msg: "ansible_ssh_public_key must be provided (set via environment variable or extra vars)"
   when: ansible_ssh_public_key == "" or ansible_ssh_public_key is not defined
 
 - name: Validate SSH public key format
-  fail:
+  ansible.builtin.fail:
     msg: "Invalid SSH public key format. Must start with 'ssh-rsa', 'ssh-ed25519', 'ecdsa-sha2-', or 'ssh-dss'"
   when: >
     not (ansible_ssh_public_key.startswith('ssh-rsa ') or
@@ -16,7 +16,7 @@
          ansible_ssh_public_key.startswith('ssh-dss '))
 
 - name: Create ansible user
-  user:
+  ansible.builtin.user:
     name: "{{ ansible_user_name }}"
     shell: "{{ ansible_user_shell }}"
     create_home: "{{ ansible_user_create_home }}"
@@ -24,7 +24,7 @@
     state: present
 
 - name: Create .ssh directory for ansible user
-  file:
+  ansible.builtin.file:
     path: "/home/{{ ansible_user_name }}/.ssh"
     state: directory
     owner: "{{ ansible_user_name }}"
@@ -32,14 +32,14 @@
     mode: '0700'
 
 - name: Add SSH public key to ansible user
-  authorized_key:
+  ansible.posix.authorized_key:
     user: "{{ ansible_user_name }}"
     key: "{{ ansible_ssh_public_key }}"
     state: present
     exclusive: yes
 
 - name: Configure passwordless sudo for ansible user
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "/etc/sudoers.d/{{ ansible_user_name }}"
     line: "{{ ansible_user_name }} ALL=(ALL) NOPASSWD: {{ ansible_user_sudo_commands }}"
     create: yes
@@ -48,7 +48,7 @@
   when: ansible_user_passwordless_sudo | bool
 
 - name: Ensure sudoers.d is included in sudoers
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/sudoers
     line: "#includedir /etc/sudoers.d"
     state: present

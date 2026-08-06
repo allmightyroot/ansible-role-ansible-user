@@ -1,0 +1,5 @@
+---
+# role-name requires setting galaxy_info.role_name / galaxy_info.namespace
+# in meta/main.yml — left as a content decision, not fixed automatically.
+skip_list:
+  - role-name
